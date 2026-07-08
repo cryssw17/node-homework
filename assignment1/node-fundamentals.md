@@ -23,8 +23,8 @@ Some use cases for Node include:
 
 ## Explain the difference between CommonJS and ES Modules. Give a code example of each.
 
-CommonJS exports code using modules.export and imports with require().
-ES Modules exports code using export/export default and imports code with import.
+CommonJS is used in Node and exports code using modules.export and imports with require().
+ES Modules is used in browser side JS and exports code using export/export default and imports code with import. Node can also use ES Modules but files need to have the .mjs extension or extra configuration.
 
 **CommonJS (default in Node.js):**
 

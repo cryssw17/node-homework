@@ -1,6 +1,7 @@
 const express = require("express");
 const dogsRouter = require("./routes/dogs");
 const { randomUUID } = require("crypto");
+const path = require("path");
 
 const app = express();
 
@@ -32,7 +33,7 @@ app.use((req, res, next) => {
 app.use(express.json());
 
 //static file
-app.use(express.static("week-3-middleware/public"));
+app.use(express.static(path.join(__dirname, "public")));
 
 //content-type validation
 app.use((req, res, next) => {
@@ -61,9 +62,9 @@ app.use((err, req, res, next) => {
   const statusCode = err.statusCode || 500;
 
   if (statusCode >= 400 && statusCode < 500) {
-    console.warn(`WARN: ${err.name}`);
+    console.warn(`WARN: ${err.name} - ${err.message}`);
   } else {
-    console.error(`ERROR: ${err.name}`);
+    console.error(`ERROR: ${err.name} - ${err.message}`);
   }
 
   res.status(statusCode).json({

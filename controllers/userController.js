@@ -43,7 +43,7 @@ function logon(req, res) {
 
 function logoff(req, res) {
   global.user_id = null;
-  return res.sendStatus(200);
+  return res.status(200).send();
 }
 
 module.exports = { register, logon, logoff };

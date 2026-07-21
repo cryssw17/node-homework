@@ -37,7 +37,7 @@ app.use("/", dogsRouter); // Do not remove this line
 app.use((req, res) => {
   res.status(404).json({
     error: "Route not found",
-    requestId: `"${req.requestId}"`,
+    requestId: req.requestId,
   });
 });
 
@@ -46,7 +46,7 @@ app.use((err, req, res, next) => {
   console.error(err);
   res.status(500).json({
     error: "Internal Server Error",
-    requestId: `"${req.requestId}"`,
+    requestId: req.requestId,
   });
 });
 

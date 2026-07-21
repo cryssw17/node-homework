@@ -21,6 +21,12 @@ app.use((req, res, next) => {
 });
 
 //security headers
+app.use((req, res, next) => {
+  res.setHeader("X-Content-Type-Options", "nosniff");
+  res.setHeader("X-Frame-Options", "DENY");
+  res.setHeader("X-XSS-Protection", "1; mode=block");
+  next();
+});
 
 //json parsing
 app.use(express.json());
@@ -29,6 +35,15 @@ app.use(express.json());
 app.use(express.static("week-3-middleware/public"));
 
 //content-type validation
+app.use((req, res, next) => {
+  if (req.method === "POST" && !req.is("application/json")) {
+    return res.status(400).json({
+      error: "Content-Type must be application/json",
+      requestId: req.requestId,
+    });
+  }
+  next();
+});
 
 //routes
 app.use("/", dogsRouter); // Do not remove this line
@@ -43,9 +58,16 @@ app.use((req, res) => {
 
 //error handler
 app.use((err, req, res, next) => {
-  console.error(err);
-  res.status(500).json({
-    error: "Internal Server Error",
+  const statusCode = err.statusCode || 500;
+
+  if (statusCode >= 400 && statusCode < 500) {
+    console.warn(`WARN: ${err.name}`);
+  } else {
+    console.error(`ERROR: ${err.name}`);
+  }
+
+  res.status(statusCode).json({
+    error: statusCode === 500 ? "Internal Server Error" : err.message,
     requestId: req.requestId,
   });
 });

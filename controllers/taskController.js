@@ -9,10 +9,14 @@ const taskCounter = (() => {
 function create(req, res) {
   const newTask = {
     id: taskCounter(),
+    title: 
+    isCompleted: 
     userId: global.user_id.email,
   };
 
   global.tasks.push(newTask);
+
+  
 
   //sanitize task before returning
   const { userId, ...sanitizedNewTask } = newTask;
@@ -22,7 +26,7 @@ function create(req, res) {
 }
 
 function index(req, res) {
-  const userTasks = global.tasks.map(
+  const userTasks = global.tasks.filter(
     (task) => task.userId === global.user_id.email,
   );
 
@@ -57,11 +61,16 @@ function show(req, res) {
   }
 }
 
-function update(res, req) {
+function update(req, res) {
+//validate patch body -> check that contains title, is completed
+
   const taskId = parseInt(req.params?.id);
+  
 }
 
-function deleteTask(res, req) {}
+function deleteTask(req, res) {
+
+}
 
 module.exports = {
   create,

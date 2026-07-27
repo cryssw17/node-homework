@@ -1,4 +1,4 @@
-const { taskSchema, patchSchema } = require("../validation/taskSchema");
+const { taskSchema, patchTaskSchema } = require("../validation/taskSchema");
 
 const taskCounter = (() => {
   let lastTaskCount = 0;
@@ -31,9 +31,7 @@ function create(req, res) {
 
   //sanitize task before returning
   const { userId, ...sanitizedNewTask } = newTask;
-  return res.status(201).json({
-    message: sanitizedNewTask,
-  });
+  return res.status(201).json(sanitizedNewTask);
 }
 
 function index(req, res) {
@@ -50,41 +48,35 @@ function index(req, res) {
       ({ userId, ...sanitizedUserTasks }) => sanitizedUserTasks,
     );
 
-    return res.status(200).json({
-      message: tasksArray,
-    });
+    return res.status(200).json(tasksArray);
   }
 }
 
 function show(req, res) {
   const taskId = parseInt(req.params?.id);
-  console.log(taskId);
-  if (!taskId) {
+  if (isNaN(taskId)) {
     return res.status(400).json({
-      message: "The task Id passed is not valid.",
+      message: "The task ID passed is not valid.",
     });
   }
   const queriedTask = global.tasks.find(
     (task) => task.id === taskId && task.userId === global.user_id.email,
   );
 
-  console.log(queriedTask);
-  if (queriedTask === undefined) {
+  if (!queriedTask) {
     return res.status(404).json({
       message: "No task found.",
     });
   } else {
     const { userId, ...sanitizedQueriedTask } = queriedTask;
 
-    return res.status(200).json({
-      message: sanitizedQueriedTask,
-    });
+    return res.status(200).json(sanitizedQueriedTask);
   }
 }
 
 function update(req, res) {
   if (!req.body) req.body = {};
-  const { error, value } = patchSchema.validate(req.body, {
+  const { error, value } = patchTaskSchema.validate(req.body, {
     abortEarly: false,
   });
 
@@ -97,7 +89,7 @@ function update(req, res) {
   const taskId = parseInt(req.params?.id);
 
   const task = global.tasks.find(
-    (task) => task.id === taskId && task.email === global.user_id,
+    (task) => task.id === taskId && task.userId === global.user_id.email,
   );
 
   if (!task) {
@@ -109,22 +101,24 @@ function update(req, res) {
 
     const { userId, ...sanitizedUpdatedTask } = updatedTask;
 
-    return res.status(200).json({
-      message: sanitizedUpdatedTask,
-    });
+    return res.status(200).json(sanitizedUpdatedTask);
   }
 }
 
 function deleteTask(req, res) {
   const taskId = parseInt(req.params?.id);
 
-  if (!taskId) {
+  if (isNaN(taskId)) {
     return res.status(400).json({
       message: "Task ID is not valid.",
     });
   }
 
-  const taskIndex = global.tasks.findIndex(taskId && global.user_id.email);
+  function checkTask(task) {
+    return task.id === taskId && task.userId === global.user_id.email;
+  }
+
+  const taskIndex = global.tasks.findIndex(checkTask);
 
   if (taskIndex === -1) {
     return res.status(404).json({
@@ -136,9 +130,7 @@ function deleteTask(req, res) {
 
     global.tasks.splice(taskIndex, 1);
 
-    return res.status(200).json({
-      message: sanitizedDeletedTask,
-    });
+    return res.status(200).json(sanitizedDeletedTask);
   }
 }
 

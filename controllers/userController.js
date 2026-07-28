@@ -27,6 +27,14 @@ async function register(req, res) {
     });
   }
 
+  const existingUser = global.users.find((user) => user.email === value.email);
+
+  if (existingUser) {
+    return res.status(409).json({
+      message: "User already exists. Please login instead.",
+    });
+  }
+
   const hashedPassword = await hashPassword(value.password);
 
   //create new user object

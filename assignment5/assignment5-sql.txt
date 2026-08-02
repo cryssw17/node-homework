@@ -24,6 +24,6 @@ COMMIT;
 SELECT * FROM line_items WHERE order_id = 250;
 
 
-SELECT first_name, last_name, COUNT(order_id) AS order_count FROM employees AS e JOIN orders AS o ON e.employee_id = o.employee_id GROUP BY e.employee_id, e.first_name, e.last_name HAVING COUNT(order_id) > 5;
+SELECT first_name, last_name, COUNT(order_id) AS order_count FROM employees AS e JOIN orders AS o ON e.employee_id = o.employee_id GROUP BY e.employee_id, e.first_name, e.last_name HAVING COUNT(order_id) > 5 ORDER BY last_name ASC;
 
 

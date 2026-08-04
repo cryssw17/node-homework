@@ -2,7 +2,7 @@ const { userSchema } = require("../validation/userSchema");
 const crypto = require("crypto");
 const util = require("util");
 const scrypt = util.promisify(crypto.scrypt);
-const pool = require("./db/pg-pool");
+const pool = require("../db/pg-pool");
 
 async function hashPassword(password) {
   const salt = crypto.randomBytes(16).toString("hex");
@@ -41,7 +41,7 @@ async function register(req, res, next) {
     );
   } catch (e) {
     if (e.code === "23505") {
-      return res.status(409).json({
+      return res.status(400).json({
         message: "User already exists. Please login instead.",
       });
     }

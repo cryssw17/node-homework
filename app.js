@@ -21,6 +21,16 @@ app.use("/api", timeRouter);
 app.use("/api/users", userRouter);
 app.use("/api/tasks", authMiddleware, taskRouter);
 
+app.get("health", asynce (req, res) => {
+  try{
+    await pool.query("SELECT 1");
+    res.json({status: "ok", db: "connected"});
+  } catch (err) {
+    res.status(500).json({ messaage: `db not connected, error: ${ err.message}`});
+  }
+});
+
+
 //week 2
 app.get("/", (req, res) => {
   res.send("Hello, World!");
@@ -48,6 +58,8 @@ server.on("error", (err) => {
   } else {
     console.error("Server error:", err);
   }
+  
+  await pool.end();
   process.exit(1);
 });
 
@@ -74,8 +86,6 @@ async function shutdown(code = 0) {
   } finally {
     process.exit(code);
   }
-
-  await pool.end();
 }
 
 process.on("SIGINT", () => shutdown(0));

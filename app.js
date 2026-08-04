@@ -5,6 +5,7 @@ const notFound = require("./middleware/not-found");
 const errorHandler = require("./middleware/error-handler");
 const authMiddleware = require("./middleware/auth.js");
 const taskRouter = require("./routes/taskRoutes");
+const pool = require("./db/pg-pool");
 
 const app = express();
 
@@ -73,6 +74,8 @@ async function shutdown(code = 0) {
   } finally {
     process.exit(code);
   }
+
+  await pool.end();
 }
 
 process.on("SIGINT", () => shutdown(0));

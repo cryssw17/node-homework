@@ -10,8 +10,6 @@ const pool = require("./db/pg-pool");
 const app = express();
 
 global.user_id = null;
-global.users = [];
-global.tasks = [];
 
 app.use(express.json());
 
@@ -21,7 +19,7 @@ app.use("/api", timeRouter);
 app.use("/api/users", userRouter);
 app.use("/api/tasks", authMiddleware, taskRouter);
 
-app.get("health", asynce (req, res) => {
+app.get("/health", asynce (req, res) => {
   try{
     await pool.query("SELECT 1");
     res.json({status: "ok", db: "connected"});
@@ -59,7 +57,6 @@ server.on("error", (err) => {
     console.error("Server error:", err);
   }
   
-  await pool.end();
   process.exit(1);
 });
 
@@ -84,6 +81,7 @@ async function shutdown(code = 0) {
     console.error("Error during shutdown:", err);
     code = 1;
   } finally {
+      await pool.end();
     process.exit(code);
   }
 }

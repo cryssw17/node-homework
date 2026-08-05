@@ -19,15 +19,16 @@ app.use("/api", timeRouter);
 app.use("/api/users", userRouter);
 app.use("/api/tasks", authMiddleware, taskRouter);
 
-app.get("/health", asynce (req, res) => {
-  try{
+app.get("/health", async (req, res) => {
+  try {
     await pool.query("SELECT 1");
-    res.json({status: "ok", db: "connected"});
+    res.json({ status: "ok", db: "connected" });
   } catch (err) {
-    res.status(500).json({ messaage: `db not connected, error: ${ err.message}`});
+    res
+      .status(500)
+      .json({ messaage: `db not connected, error: ${err.message}` });
   }
 });
-
 
 //week 2
 app.get("/", (req, res) => {
@@ -56,7 +57,7 @@ server.on("error", (err) => {
   } else {
     console.error("Server error:", err);
   }
-  
+
   process.exit(1);
 });
 
@@ -81,7 +82,7 @@ async function shutdown(code = 0) {
     console.error("Error during shutdown:", err);
     code = 1;
   } finally {
-      await pool.end();
+    await pool.end();
     process.exit(code);
   }
 }

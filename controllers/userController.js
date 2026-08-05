@@ -67,7 +67,9 @@ async function logon(req, res) {
   ]);
 
   if (result.rows.length === 0) {
-    return res.status(404).json({ error: "Task not found or access denied" });
+    return res
+      .status(404)
+      .json({ error: "Authentication failed. Please try again." });
   }
 
   const goodCredentials = await comparePassword(

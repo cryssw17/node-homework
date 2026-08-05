@@ -31,7 +31,7 @@ async function index(req, res) {
   );
 
   if (userTasks.rows.length === 0) {
-    return res.status(401).json({
+    return res.status(404).json({
       message: "There are no tasks for this user.",
     });
   } else {

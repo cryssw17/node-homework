@@ -139,7 +139,7 @@ async function deleteTask(req, res, next) {
     return res.status(200).json(task);
   } catch (err) {
     if (err.code === "P2025") {
-      return res.status(404).json({ message: "No task found." });
+      return res.status(404).json({ message: "The task was not found." });
     } else {
       return next(err);
     }

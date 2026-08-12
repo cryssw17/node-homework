@@ -67,7 +67,7 @@ async function show(req, res, next) {
     });
     if (task === null) {
       return res.status(404).json({
-        message: "Task not found.",
+        message: "The task was not found.",
       });
     }
     return res.status(200).json(task);

@@ -82,8 +82,6 @@ async function shutdown(code = 0) {
     console.error("Error during shutdown:", err);
     code = 1;
   } finally {
-    // await pool.end();
-
     await prisma.$disconnect();
     console.log("Prisma disconnected");
 

@@ -19,7 +19,7 @@ async function create(req, res) {
       isCompleted: value.isCompleted,
       userId: global.user_id,
     },
-    select: { id: true, title: true, isCompleted: true },
+    select: { id: true, title: true, isCompleted: true, priority: true },
   });
 
   //sanitize task before returning
@@ -29,12 +29,77 @@ async function create(req, res) {
 }
 
 async function index(req, res) {
+  const page = parseInt(req.query.page) || 1;
+  const limit = parseInt(req.query.limit) || 10;
+  const skip = (page - 1) * limit;
+
+  const whereClause = { userId: global.user_id };
+
+  if (req.query.find) {
+    whereClause.title = {
+      contains: req.query.find,
+      mode: "insensitive",
+    };
+  }
+
+  if (req.query.isCompleted !== undefined) {
+    whereClause.isCompleted = req.query.isCompleted === "true";
+  }
+
+  if (req.query.priority !== undefined) {
+    whereClause.priority = req.query.priority;
+  }
+
+  if (req.query.min_date || req.query.max_date) {
+    //create the createdAt object
+    whereClause.createdAt = {};
+    //add min_date or max_Date conditionally
+    if (req.query.min_date) {
+      whereClause.createdAt.gte = new Date(req.query.min_date);
+    }
+    if (req.query.max_date) {
+      whereClause.createdAt.lte = new Date(req.query.max_date);
+    }
+  }
+
+  const getOrderBy = (query) => {
+    const validSortFields = 
+    const sortBy =
+    const sortDirection = 
+  }
+
   const tasks = await prisma.task.findMany({
-    where: {
-      userId: global.user_id,
+    where: whereClause,
+    select: {
+      id: true,
+      title: true,
+      isCompleted: true,
+      priority: true,
+      createdAt: true,
+      User: {
+        select: {
+          name: true,
+          email: true,
+        },
+      },
     },
-    select: { title: true, isCompleted: true, id: true },
+    skip: skip,
+    take: limit,
+    orderBy: { createAt: "desc" },
   });
+
+  const totalTasks = await prisma.tasks.count({
+    where: whereClause,
+  });
+
+  const pagination = {
+    page,
+    limit,
+    total: totalTasks,
+    pages: Math.ceil(totalTasks / limit),
+    hasNext: page * limit < totalTasks,
+    hasPrev: page > 0,
+  };
 
   if (tasks.length === 0) {
     return res.status(404).json({
@@ -45,7 +110,7 @@ async function index(req, res) {
       ({ userId, ...sanitizedUserTasks }) => sanitizedUserTasks,
     );
 
-    return res.status(200).json(tasksArray);
+    return res.status(200).json({ tasksArray, pagination });
   }
 }
 

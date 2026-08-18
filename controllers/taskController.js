@@ -63,10 +63,22 @@ async function index(req, res) {
   }
 
   const getOrderBy = (query) => {
-    const validSortFields = 
-    const sortBy =
-    const sortDirection = 
-  }
+    const validSortFields = [
+      "title",
+      "isCompleted",
+      "priority",
+      "createdAt",
+      "id",
+    ];
+    const sortBy = query.sortBy || "createdAt";
+    const sortDirection = query.sortDirection === "asc" ? "asc" : "desc";
+
+    if (validSortFields.includes(sortBy)) {
+      return { [sortBy]: sortDirection };
+    }
+
+    return { createdAt: "desc" };
+  };
 
   const tasks = await prisma.task.findMany({
     where: whereClause,
@@ -85,7 +97,7 @@ async function index(req, res) {
     },
     skip: skip,
     take: limit,
-    orderBy: { createAt: "desc" },
+    orderBy: getOrderBy(req.query),
   });
 
   const totalTasks = await prisma.tasks.count({
@@ -211,10 +223,53 @@ async function deleteTask(req, res, next) {
   }
 }
 
+async function bulkCreate(req, res, next) {
+  const { tasks } = req.body;
+
+  if (!tasks || !Array.isArray(tasks) || tasks.length === 0) {
+    return res.status(400).json({
+      error: "Invalid request data. Expected an array of tasks.",
+    });
+  }
+
+  const validTasks = [];
+  for (const task of tasks) {
+    const { error, value } = taskSchema.validate(task);
+    if (error) {
+      return res.status(400).json({
+        error: "Validation failed",
+        details: error.details,
+      });
+    }
+    validTasks.push({
+      title: value.title,
+      isCompleted: value.isCompleted || false,
+      priority: value.priority || "medium",
+      userId: global.user_id,
+    });
+  }
+
+  try {
+    const result = await prisma.task.createMany({
+      data: validTasks,
+      skipDuplicates: false,
+    });
+
+    res.status(201).json({
+      message: "Bulk task creation successful",
+      tasksCreated: result.count,
+      totalRequested: validTasks.length,
+    });
+  } catch (err) {
+    return next(err);
+  }
+}
+
 module.exports = {
   create,
   index,
   show,
   update,
   deleteTask,
+  bulkCreate,
 };

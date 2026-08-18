@@ -64,6 +64,15 @@ async function getUsersWithStats(req, res) {
   const limit = parseInt(req.query.limit) || 10;
   const skip = (page - 1) * limit;
 
+  if (!page >= 1 || 1 <= limit <= 100) {
+    return res
+      .status(400)
+      .json({
+        message:
+          "The page can not be less than 1. The limit must be between 1 and 100.",
+      });
+  }
+
   const usersRaw = await prisma.user.findMany({
     include: {
       Task: {
@@ -86,7 +95,8 @@ async function getUsersWithStats(req, res) {
     id: user.id,
     name: user.name,
     email: user.email,
-    createdAt: user._count,
+    createdAt: user.createdAt,
+    _count: user._count,
     Task: user.Task,
   }));
 
@@ -96,7 +106,7 @@ async function getUsersWithStats(req, res) {
     page,
     limit,
     total: totalUsers,
-    pages: Math.ceiling(totalUsers / limit),
+    pages: Math.ceil(totalUsers / limit),
     hasNext: page * limit < totalUsers,
     hasPrev: page > 0,
   };

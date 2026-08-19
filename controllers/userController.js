@@ -34,14 +34,14 @@ async function register(req, res, next) {
   delete value.password;
 
   try {
-    const result = prisma.$transaction(async (tx) => {
+    const result = await prisma.$transaction(async (tx) => {
       const user = await tx.user.create({
         data: {
           name: value.name,
           email: value.email,
           hashedPassword: value.hashedPassword,
         },
-        select: { name: true, email: true, id: true },
+        select: { id: true, name: true, email: true, createdAt: true },
       });
       const welcomeTaskData = [
         { title: "Complete your profile", userId: user.id, priority: "medium" },

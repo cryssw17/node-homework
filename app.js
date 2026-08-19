@@ -5,7 +5,7 @@ const notFound = require("./middleware/not-found");
 const errorHandler = require("./middleware/error-handler");
 const authMiddleware = require("./middleware/auth.js");
 const taskRouter = require("./routes/taskRoutes");
-const analyticsRouter = require("./routes/analyticRoutes");
+const analyticsRouter = require("./routes/analyticsRoutes");
 const prisma = require("./db/prisma");
 
 const app = express();

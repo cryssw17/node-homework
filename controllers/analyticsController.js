@@ -42,20 +42,19 @@ async function getUserAnalytics(req, res) {
   const oneWeekAgo = new Date();
   oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
 
-  const weeklyTasks = await prisma.task.groupBy({
+  const weeklyProgress = await prisma.task.groupBy({
     by: ["createdAt"],
     where: {
       userId,
-      createdAt: {
-        gte: oneWeekAgo,
-      },
+      createdAt: { gte: oneWeekAgo },
     },
+    _count: { id: true },
   });
 
   return res.status(200).json({
     taskStats,
     recentTasks,
-    weeklyTasks,
+    weeklyProgress,
   });
 }
 
@@ -64,7 +63,7 @@ async function getUsersWithStats(req, res) {
   const limit = parseInt(req.query.limit) || 10;
   const skip = (page - 1) * limit;
 
-  if (!page >= 1 || 1 <= limit <= 100) {
+  if (page < 1 || limit < 1 || limit > 100) {
     return res.status(400).json({
       message:
         "The page can not be less than 1. The limit must be between 1 and 100.",

@@ -194,7 +194,7 @@ async function update(req, res, next) {
         id,
         userId: global.user_id,
       },
-      select: { title: true, isCompleted: true, id: true },
+      select: { title: true, isCompleted: true, id: true, priority: true },
     });
 
     return res.status(200).json(task);

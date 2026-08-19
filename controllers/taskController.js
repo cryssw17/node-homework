@@ -17,6 +17,7 @@ async function create(req, res) {
     data: {
       title: value.title,
       isCompleted: value.isCompleted,
+      priority: value.priority,
       userId: global.user_id,
     },
     select: { id: true, title: true, isCompleted: true, priority: true },
@@ -100,7 +101,7 @@ async function index(req, res) {
     orderBy: getOrderBy(req.query),
   });
 
-  const totalTasks = await prisma.tasks.count({
+  const totalTasks = await prisma.task.count({
     where: whereClause,
   });
 
@@ -122,7 +123,7 @@ async function index(req, res) {
       ({ userId, ...sanitizedUserTasks }) => sanitizedUserTasks,
     );
 
-    return res.status(200).json({ tasksArray, pagination });
+    return res.status(200).json({ tasks: tasksArray, pagination });
   }
 }
 
@@ -140,7 +141,17 @@ async function show(req, res, next) {
         id: taskId,
         userId: global.user_id,
       },
-      select: { title: true, isCompleted: true, id: true },
+      select: {
+        title: true,
+        isCompleted: true,
+        id: true,
+        User: {
+          select: {
+            name: true,
+            email: true,
+          },
+        },
+      },
     });
     if (task === null) {
       return res.status(404).json({

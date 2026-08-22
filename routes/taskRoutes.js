@@ -5,6 +5,7 @@ const router = express.Router();
 
 router.post("/", taskController.create);
 router.get("/", taskController.index);
+router.post("/bulk", taskController.bulkCreate);
 router.get("/:id", taskController.show);
 router.patch("/:id", taskController.update);
 router.delete("/:id", taskController.deleteTask);

@@ -3,23 +3,40 @@ const timeRouter = require("./routes/timeRoutes");
 const userRouter = require("./routes/userRoutes");
 const notFound = require("./middleware/not-found");
 const errorHandler = require("./middleware/error-handler");
-const authMiddleware = require("./middleware/auth.js");
 const taskRouter = require("./routes/taskRoutes");
 const analyticsRouter = require("./routes/analyticsRoutes");
 const prisma = require("./db/prisma");
+const cookieParser = require("cookie-parser");
 
 const app = express();
 
-global.user_id = null;
+app.set("trust proxy", 1);
+
+const helmet = require("helmet");
+const { xss } = require("express-xss-sanitizer");
+const rateLimiter = require("express-rate-limit");
+
+app.use(
+  rateLimiter({
+    windowMs: 15 * 60 * 1000,
+    max: 100,
+  }),
+);
+
+app.use(helmet());
 
 app.use(express.json());
+
+app.use(cookieParser());
+
+app.use(xss());
 
 //week 2
 app.use("/api", timeRouter);
 
 app.use("/api/users", userRouter);
-app.use("/api/tasks", authMiddleware, taskRouter);
-app.use("/api/analytics", authMiddleware, analyticsRouter);
+app.use("/api/tasks", taskRouter);
+app.use("/api/analytics", analyticsRouter);
 
 app.get("/health", async (req, res) => {
   try {

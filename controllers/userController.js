@@ -28,7 +28,11 @@ const cookieFlags = (req) => {
 };
 
 const setJWTCookie = (req, res, user) => {
-  const payload = { id: user.id, csrfToken: crypto.randomUUID() };
+  const payload = {
+    id: user.id,
+    role: user.role,
+    csrfToken: crypto.randomUUID(),
+  };
   const token = jwt.sign(payload, process.env.JWT_SECRET, {
     expiresIn: "1h",
   });
@@ -94,7 +98,13 @@ async function register(req, res, next) {
           email: value.email,
           hashedPassword: value.hashedPassword,
         },
-        select: { id: true, name: true, email: true, createdAt: true },
+        select: {
+          id: true,
+          role: true,
+          name: true,
+          email: true,
+          createdAt: true,
+        },
       });
       const welcomeTaskData = [
         { title: "Complete your profile", userId: user.id, priority: "medium" },
@@ -121,7 +131,7 @@ async function register(req, res, next) {
     });
 
     //set JWT cookie and get csrfToken
-    const csrfToken = setJWTCookie(req, res, result.user);
+    const { csrfToken } = setJWTCookie(req, res, result.user);
 
     //send 201 status and json w/ name, email and csrfToken
     res.status(201).json({

@@ -8,7 +8,9 @@ router.use(jwtMiddleware);
 
 router.post("/", taskController.create);
 router.get("/", taskController.index);
-router.post("/bulk", taskController.bulkCreate);
+router.post("/bulk-create", taskController.bulkCreate);
+router.delete("/bulk-delete", taskController.bulkDelete);
+router.delete("/empty-trash", taskController.emptyTrash);
 router.get("/:id", taskController.show);
 router.patch("/:id", taskController.update);
 router.delete("/:id", taskController.deleteTask);

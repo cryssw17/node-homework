@@ -1,4 +1,54 @@
-# Getting Started with Node Development
+# Project overview
+
+This is a REST API for a todo app that allows for users to create accounts, authenticate, and manage their tasks. Includes role-based access control for admin only routes and trash bin for soft deletion of tasks.
+
+## Tech stack
+
+- **Backend:** Node.js, Express
+- **Database:** PostgreSQL (hosted on Neon)
+- **ORM:** Prisma
+- **Deployment:** Render
+
+## Setup instructions
+
+1. Clone the repository to your machine locally.
+2. Install project dependencies by running: `npm install`
+3. Create a `.env` file in the root directory (see Environment Variables below).
+4. Run database migrations: `npx prisma migrate dev`
+5. Start the server by running: `npm start`
+6. The API will be running at `http://localhost:3000`
+
+## Environment variables
+
+- `DATABASE_URL`: connection string for your PostgreSQL database
+- `JWT_SECRET`: secret key used to sign JWTs
+- `RECAPTCHA_SECRET`: secret key from Google reCAPTCHA
+- `RECAPTCHA_BYPASS`: a secret value used to bypass reCAPTCHA verification during testing (Postman/Jest)
+
+## Authentication details
+
+- Passwords are hashed before being stored; plain text passwords are never saved.
+- For registration/logon, a JWT is signed and set as an `HttpOnly` cookie, so it cannot be accessed by JavaScript. The JWT payload includes the user's id, role, and a CSRF token.
+- On registration/logon, a separate CSRF token is returned in the response body. The frontend stores this and must include it as a header (`X-CSRF-TOKEN`) on requests that change server state, providing protection against CSRF attacks.
+- Registration requires reCAPTCHA verification to help prevent automated bot account creation.
+
+## Additional features
+
+- **Role Based Access Control:** analytics routes, which can display all users information, are restricted to users with an "admin" role.
+- **Trash Bin**: Deleting a task performs a soft delete by marking tasks as trash instead of immediate removal. The user can then restore a trashed task. The bin can be emptied to permanently delete tasks all at once or individually.
+- **Bulk Delete:** Can send multiple tasks to trash at once, instead of individually.
+
+## Future Improvement Ideas
+
+- Ability for users to update user info (name, email, password)
+- Have trash bin auto-empty after a specified amount of time such as 30 days.
+- Ability to restore/update multiple tasks at once
+
+## Deployed backend link
+
+[https://node-homework-926.onrender.com](https://node-homework-926.onrender.com)
+
+## Getting Started with Node Development
 
 Welcome to Code the Dream's Node/Express class!
 

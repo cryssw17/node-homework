@@ -177,6 +177,7 @@ async function logon(req, res) {
     return res.status(200).json({
       name: user.name,
       email: user.email,
+      role: user.role,
       csrfToken,
     });
   } else {

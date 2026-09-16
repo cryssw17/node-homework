@@ -38,9 +38,6 @@ async function index(req, res) {
   const limit = parseInt(req.query.limit) || 10;
   const skip = (page - 1) * limit;
 
-  //add trash: isTrash
-  //create isTrash which checks if trash in query  is === 'true'. this converts from string in urlparam to booelan value for use in whereClause, index by default should use trash: false
-
   const isTrash = req.query.trash === "true";
 
   const whereClause = { userId: req.user.id, trash: isTrash }; //add trash: isTrash
@@ -172,7 +169,6 @@ async function show(req, res, next) {
         message: "The task was not found.",
       });
     }
-    //add if for if task.trash === true error message stating task may have been deleted in a 404 message. need to add trash to the select that returned in the prisma find
     if (task.trash === true) {
       return res.status(404).json({
         message: "This task may have been deleted. Try checking the trash bin.",
@@ -243,7 +239,6 @@ async function deleteTask(req, res, next) {
   }
 
   try {
-    //delete becomes update setting trash = true
     const task = await prisma.task.update({
       data: { trash: true },
       where: {
@@ -261,7 +256,6 @@ async function deleteTask(req, res, next) {
     }
   }
 }
-//bulk delete
 
 async function bulkDelete(req, res, next) {
   if (!req.body) req.body = {};
@@ -299,9 +293,6 @@ async function bulkDelete(req, res, next) {
   }
 }
 
-//emptyTrash
-//has  option to delete all: use deleteMany set whereClause { userId: req.user.id, trash: true }
-// or delete selected tasks: update where clause whereClause.id = { in: taskIds } taskIds is an array of id numbers. First need to check if taskIds exists and that has length > 0 and is an array <- create joi validation for these checks if invalid gives 400 error (Bad Request), if passes validation it add whereClause.id look at bulkCreate taskSchema validation
 async function emptyTrash(req, res, next) {
   if (!req.body) req.body = {};
   const { error, value } = taskArraySchema.validate(req.body, {

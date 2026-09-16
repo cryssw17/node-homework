@@ -1,1 +1,27 @@
 https://node-homework-926.onrender.com
+
+New features: 
+
+RBAC: added a 'role' field to the user model to protect the analytics routes, so only users with the role "admin" can reach them. Regular users with the role "user" should no longer be able to access those routes. The default role for accounts is set to user. The "admin" role is manually set in prisma studio. 
+
+Trash Bin: Added a trash bin for the soft deletion of tasks, giving users the ability to restore them before they are gone permanently. a 'trash' field was added to the task model with default set to false. 
+  -The delete route would now mark tasks as trash:true 
+
+  - The index route now displays tasks based on trash status.
+    The default viewing or if query param trash=false is used, shows the current tasks. Using query param trash=true acts as the trash bin, only displaying tasks that have deleted.
+        query param: trash 
+        can be true or false, default is false
+
+  - The show route should not display tasks with trash: true and should instead return a 404
+
+  - Created a new route called emptyTrash, a delete method, to permanently get rid of tasks. A specific list of tasks can be deleted by including the array taskIds in the request body to specify the ids of the tasks you want to delete. This array is not required for this method to work. If no body or and empty {} is sent with the request, all of the tasks with trash: true are deleted.
+       method/path: DELETE /api/tasks/empty-trash
+       body(optional): { "taskIds": [1,2,3] }
+       if body not included all of the user's tasks with trash:true are deleted
+
+  - restoration of tasks can be done through the update task method. trash: false would be included in the request body. 
+        body: { "trash": false}
+
+Created bulkDelete, a delete method, to be able to send multiple tasks to the trash at once. Here the taskIds array is required. 
+       DELETE /api/tasks/bulk-delete
+       body(required): { "taskIds": [1,2,3] }
